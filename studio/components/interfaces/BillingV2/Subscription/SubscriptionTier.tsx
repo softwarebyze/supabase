@@ -73,7 +73,7 @@ const SubscriptionTier = ({}: SubscriptionTierProps) => {
             labelBottom={`Current billing cycle (${billingCycleStart.format(
               'MMM DD'
             )} - ${billingCycleEnd.format('MMM DD')})`}
-            labelBottomClass="!text-scale-1000"
+            labelBottomClass="!text-scale-1000 pb-1"
             labelTop={`${daysToCycleEnd} Days left`}
           />
         </div>

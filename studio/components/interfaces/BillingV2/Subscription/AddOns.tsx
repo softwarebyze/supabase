@@ -25,8 +25,6 @@ const AddOns = ({}: AddOnsProps) => {
     '2-core ARM (shared) • 1GB memory • 2,606Mbps Disk IO'
   const [cpu, memory, maxIO, baseIO, connectionLimit] = computeSpecs.split('•').map((x) => x.trim())
 
-  console.log({ products, subscription, computeSpecs })
-
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-5">

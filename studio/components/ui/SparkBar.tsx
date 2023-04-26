@@ -34,7 +34,7 @@ const SparkBar: FC<Props> = ({
     return (
       <div className="flex flex-col w-full">
         {hasLabels && (
-          <div className="flex align-baseline justify-between pb-2 space-x-8">
+          <div className="flex align-baseline justify-between pb-1 space-x-8">
             <p
               className={clsx(
                 'text-scale-1200 text-sm truncate capitalize-sentence',

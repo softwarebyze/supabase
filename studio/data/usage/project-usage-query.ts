@@ -8,50 +8,32 @@ export type ProjectUsageVariables = {
   projectRef?: string
 }
 
-export interface DbSize {
+export interface UsageMetadata {
   usage: number | null
   limit: number
   cost: number
-  current: number
   available_in_plan: boolean
-}
-
-export interface DbEgress {
-  usage: number
-  limit: number
-  cost: number
-  available_in_plan: boolean
-}
-
-export interface StorageSize {
-  usage: number | null
-  limit: number
-  cost: number
-  current: number
-  available_in_plan: boolean
-}
-
-export interface StorageEgress {
-  usage: number
-  limit: number
-  cost: number
-  available_in_plan: boolean
-}
-
-export interface MonthlyActiveUsers {
-  usage: number
-  limit: number
-  cost: number
-  available_in_plan: boolean
+  // [Joshen] can we verify if this is still getting passed?
+  // Only for database and storage size
+  current?: number
 }
 
 export type ProjectUsageResponse = {
-  db_size: DbSize
-  db_egress: DbEgress
-  storage_size: StorageSize
-  storage_egress: StorageEgress
-  monthly_active_users: MonthlyActiveUsers
+  db_size: UsageMetadata
+  db_egress: UsageMetadata
   disk_volume_size_gb: number
+
+  storage_size: UsageMetadata
+  storage_egress: UsageMetadata
+  storage_image_render_count: UsageMetadata
+
+  monthly_active_users: UsageMetadata
+
+  func_count: UsageMetadata
+  func_invocations: UsageMetadata
+
+  realtime_message_count: UsageMetadata
+  realtime_peak_connection: UsageMetadata
 }
 
 export type ProjectUsageResponseUsageKeys = keyof Omit<ProjectUsageResponse, 'disk_volume_size_gb'>

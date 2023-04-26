@@ -1,18 +1,32 @@
 import { useParams } from 'common'
 import ShimmeringLoader from 'components/ui/ShimmeringLoader'
+import SparkBar from 'components/ui/SparkBar'
 import { useProjectSubscriptionQuery } from 'data/subscriptions/project-subscription-query'
-import { PRICING_TIER_PRODUCT_IDS } from 'lib/constants'
-import { Button, IconAlertCircle } from 'ui'
+import {
+  ProjectUsageResponse,
+  UsageMetadata,
+  useProjectUsageQuery,
+} from 'data/usage/project-usage-query'
+import dayjs from 'dayjs'
+import { BILLING_BREAKDOWN_METRICS } from './Subscription.constants'
+import clsx from 'clsx'
+import { formatBytes } from 'lib/helpers'
+import { getActiveAddOns } from './Subscription.utils'
 
 export interface BillingBreakdownProps {}
 
 const BillingBreakdown = ({}: BillingBreakdownProps) => {
   const { ref: projectRef } = useParams()
-  const { data: subscription, isLoading } = useProjectSubscriptionQuery({ projectRef })
-  const currentTier = subscription?.tier?.supabase_prod_id ?? ''
-  const isSpendCapOn = [PRICING_TIER_PRODUCT_IDS.PAYG, PRICING_TIER_PRODUCT_IDS.TEAM].includes(
-    currentTier
-  )
+  const { data: usage, isLoading: isLoadingUsage } = useProjectUsageQuery({ projectRef })
+  const { data: subscription, isLoading: isLoadingSubscription } = useProjectSubscriptionQuery({
+    projectRef,
+  })
+  const activeAddons = subscription !== undefined ? getActiveAddOns(subscription) : undefined
+  const billingCycleStart = dayjs.unix(subscription?.billing?.current_period_start ?? 0).utc()
+  const billingCycleEnd = dayjs.unix(subscription?.billing?.current_period_end ?? 0).utc()
+
+  // [Joshen] To be derived dynamically
+  const totalUpcomingCost = 0
 
   return (
     <div className="grid grid-cols-12">
@@ -20,7 +34,7 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
         <p className="text-base">Billing breakdown</p>
         <p className="text-sm text-scale-1000">Some description text here</p>
       </div>
-      {isLoading ? (
+      {isLoadingSubscription ? (
         <div className="col-span-7 space-y-2">
           <ShimmeringLoader />
           <ShimmeringLoader className="w-3/4" />
@@ -28,46 +42,129 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
         </div>
       ) : (
         <div className="col-span-7 space-y-6">
-          <p className="text-sm">
-            You can control whether your project is charged for additional usage beyond the included
-            usage of your subscription plan. If you need to go beyond the included usage, simply
-            switch off your spend cap to pay for additional usage.
+          <p className="text-sm">Included usage summary</p>
+          <p className="text-sm text-scale-1000">
+            Your plan includes a limited amount of included usage. If the usage on your project
+            exceeds these quotas, your subscription will be charged for the extra usage.
+            Organization owners are notified each time your project approaches or exceeds the
+            included usage. Learn more
           </p>
-          {currentTier === PRICING_TIER_PRODUCT_IDS.TEAM && (
-            <div className="w-full bg-scale-100 px-6 py-4 rounded-md flex space-x-4">
-              <div>
-                <IconAlertCircle strokeWidth={2} />
-              </div>
-              <div>
-                <p className="text-sm">
-                  You will be charged for any additional usage on the Team subscription plan
-                </p>
-                <p className="text-sm text-scale-1000">
-                  Team plan requires you to have Spend Cap off at all times. Your project will never
-                  become unresponsive or be paused. Only when your included usage is exceeded will
-                  you be charged for any additional usage.
-                </p>
-              </div>
+          <p className="text-sm text-scale-1000">
+            Current billing cycle: {billingCycleStart.format('MMM DD')} -{' '}
+            {billingCycleEnd.format('MMM DD')}
+          </p>
+
+          {isLoadingUsage ? (
+            <div className="col-span-7 space-y-2">
+              <ShimmeringLoader />
+              <ShimmeringLoader className="w-3/4" />
+              <ShimmeringLoader className="w-1/2" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-12">
+              {BILLING_BREAKDOWN_METRICS.map((metric, i) => {
+                const usageMeta =
+                  (usage?.[metric.key as keyof ProjectUsageResponse] as UsageMetadata) ?? undefined
+                const usageRatio =
+                  typeof usageMeta !== 'number'
+                    ? (usageMeta?.usage ?? 0) / (usageMeta?.limit ?? 0)
+                    : 0
+
+                const usageCurrentLabel =
+                  metric.units === 'bytes'
+                    ? formatBytes(usageMeta.usage)
+                    : usageMeta.usage?.toLocaleString()
+                const usageLimitLabel =
+                  metric.units === 'bytes'
+                    ? formatBytes(usageMeta.limit)
+                    : usageMeta.limit.toLocaleString()
+                const usageLabel = `${usageCurrentLabel} of ${usageLimitLabel}`
+                const percentageLabel = `${(usageRatio * 100).toFixed(2)}%`
+
+                if (!usageMeta.available_in_plan) return null
+
+                return (
+                  <div
+                    key={metric.key}
+                    className={clsx(
+                      'col-span-6 py-4 space-y-4',
+                      i % 2 === 0 ? 'border-r pr-4' : 'pl-4',
+                      i < BILLING_BREAKDOWN_METRICS.length - 2 && 'border-b'
+                    )}
+                  >
+                    <p className="text-sm text-scale-1100">{metric.name}</p>
+                    <SparkBar
+                      type="horizontal"
+                      max={usageMeta.limit}
+                      value={0}
+                      barClass="bg-scale-1100"
+                      labelBottom={usageLabel}
+                      labelBottomClass="!text-scale-1000"
+                      labelTop={percentageLabel}
+                    />
+                  </div>
+                )
+              })}
             </div>
           )}
-          <div className="flex space-x-6">
-            <div>
-              <div className="rounded-md bg-scale-400 w-[160px] h-[96px]">
-                {/* Spend cap picture here */}
-              </div>
-            </div>
-            <div>
-              <p className="mb-1">Spend cap is {isSpendCapOn ? 'on' : 'off'}</p>
-              <p className="text-sm text-scale-1000">
-                {isSpendCapOn
-                  ? 'You will be charged for any extra usage above your included usage quota'
-                  : 'You will never be charged any extra for usage. However, your project will experience downtime if you exceed the included usage quota'}
-              </p>
-              <Button type="default" className="mt-4">
-                Change spend cap
-              </Button>
-            </div>
-          </div>
+
+          <p className="!mt-10 text-sm">Upcoming cost for next invoice</p>
+          <p className="text-sm text-scale-1000">
+            Your plan includes a limited amount of included usage. If the usage on your project
+            exceeds these quotas, your subscription will be charged for the extra usage.
+            Organization owners are notified each time your project approaches or exceeds the
+            included usage. Learn more
+          </p>
+          <p className="text-sm text-scale-1000">
+            Current billing cycle: {billingCycleStart.format('MMM DD')} -{' '}
+            {billingCycleEnd.format('MMM DD')}
+          </p>
+
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="py-2 font-normal text-left text-sm text-scale-1000 w-1/2">Item</th>
+                <th className="py-2 font-normal text-left text-sm text-scale-1000">Count</th>
+                <th className="py-2 font-normal text-left text-sm text-scale-1000">Unit price</th>
+                <th className="py-2 font-normal text-right text-sm text-scale-1000">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Tier */}
+              <tr className="border-b">
+                <td className="py-2 text-sm">{subscription?.tier.name}</td>
+                <td className="py-2 text-sm">1</td>
+                <td className="py-2 text-sm">${subscription?.tier.unit_amount ?? 0}</td>
+                <td className="py-2 text-sm text-right">${subscription?.tier.unit_amount ?? 0}</td>
+              </tr>
+              {/* Compute */}
+              {activeAddons?.computeSize !== undefined ? (
+                <tr className="border-b">
+                  <td className="py-2 text-sm">{activeAddons.computeSize.name}</td>
+                  <td className="py-2 text-sm">1</td>
+                  <td className="py-2 text-sm">${activeAddons.computeSize.unit_amount}</td>
+                  <td className="py-2 text-sm text-right">
+                    ${activeAddons.computeSize.unit_amount}
+                  </td>
+                </tr>
+              ) : (
+                <tr className="border-b">
+                  <td className="py-2 text-sm">Micro compute</td>
+                  <td className="py-2 text-sm">1</td>
+                  <td className="py-2 text-sm">$0</td>
+                  <td className="py-2 text-sm text-right">0</td>
+                </tr>
+              )}
+              {/* Need to add other line items here */}
+              {/* Total */}
+              <tr>
+                <td className="py-2 text-sm">Total</td>
+                <td className="py-2 text-sm" />
+                <td className="py-2 text-sm" />
+                <td className="py-2 text-sm text-right">${totalUpcomingCost.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       )}
     </div>
