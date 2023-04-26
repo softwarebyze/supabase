@@ -4,14 +4,19 @@ import { Loading } from 'ui'
 import { SettingsLayout } from 'components/layouts'
 import LoadingUI from 'components/ui/Loading'
 import OveragesBanner from 'components/ui/OveragesBanner/OveragesBanner'
-import { useStore } from 'hooks'
+import { useStore, useFlag } from 'hooks'
 import { useProjectSubscriptionQuery } from 'data/subscriptions/project-subscription-query'
 import { NextPageWithLayout } from 'types'
 
 import { Subscription } from 'components/interfaces/Billing'
+import SubscriptionV2 from 'components/interfaces/BillingV2/Subscription/Subscription'
 
 const ProjectBilling: NextPageWithLayout = () => {
-  const { ui } = useStore()
+  const showNewSubscriptionUI = useFlag('subscriptionUsageBillingv2')
+
+  if (showNewSubscriptionUI) {
+    return <SubscriptionV2 />
+  }
 
   return (
     <div className="w-full h-full overflow-y-auto content">
