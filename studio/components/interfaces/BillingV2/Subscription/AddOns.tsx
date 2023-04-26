@@ -113,12 +113,14 @@ const AddOns = ({}: AddOnsProps) => {
                 </div>
               </div>
               <div>
-                <p className="text-sm text-scale-1000">Point in time recovery</p>
+                <p className="text-sm text-scale-1000">Custom domain</p>
                 <p className="">
-                  {activeAddons?.customDomains?.name ?? 'No custom domain available'}
+                  {activeAddons?.customDomains !== undefined
+                    ? 'Custom domain is enabled'
+                    : 'Custom domain is not enabled'}
                 </p>
                 <Button type="default" className="mt-2">
-                  Enable custom domains
+                  Change custom domain
                 </Button>
               </div>
             </div>

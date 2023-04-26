@@ -4,6 +4,7 @@ import SparkBar from 'components/ui/SparkBar'
 import { useProjectSubscriptionQuery } from 'data/subscriptions/project-subscription-query'
 import dayjs from 'dayjs'
 import { PRICING_TIER_PRODUCT_IDS } from 'lib/constants'
+import Link from 'next/link'
 import { Button, IconAlertCircle } from 'ui'
 
 export interface SubscriptionTierProps {}
@@ -48,7 +49,13 @@ const SubscriptionTier = ({}: SubscriptionTierProps) => {
             <p className="text-sm">This project is currently on the tier:</p>
             <p className="text-2xl text-brand-900 uppercase">{tierName}</p>
           </div>
-          <Button type="default">Change subscription plan</Button>
+          <div>
+            <Link href={`/project/${projectRef}/settings/billing/update`}>
+              <a>
+                <Button type="default">Change subscription plan</Button>
+              </a>
+            </Link>
+          </div>
           {[PRICING_TIER_PRODUCT_IDS.FREE, PRICING_TIER_PRODUCT_IDS.PRO].includes(currentTier) && (
             <div className="w-full bg-scale-100 px-6 py-4 rounded-md flex space-x-4">
               <div>

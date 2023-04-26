@@ -27,7 +27,13 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
 
   // [Joshen] To be derived dynamically
   const tierCost = (subscription?.tier.unit_amount ?? 0) / 100
-  const totalUpcomingCost = tierCost
+  const addOnsCost =
+    activeAddons !== undefined
+      ? Object.values(activeAddons)
+          .map((value) => value?.unit_amount ?? 0)
+          .reduce((a, b) => a + b, 0) / 100
+      : 0
+  const totalUpcomingCost = tierCost + addOnsCost
 
   return (
     <div className="grid grid-cols-12">
@@ -143,7 +149,7 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
                 <tr className="border-b">
                   <td className="py-2 text-sm">{activeAddons.computeSize.name}</td>
                   <td className="py-2 text-sm">1</td>
-                  <td className="py-2 text-sm">${activeAddons.computeSize.unit_amount}</td>
+                  <td className="py-2 text-sm">${activeAddons.computeSize.unit_amount / 100}</td>
                   <td className="py-2 text-sm text-right">
                     ${activeAddons.computeSize.unit_amount}
                   </td>
@@ -153,10 +159,20 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
                   <td className="py-2 text-sm">Micro compute</td>
                   <td className="py-2 text-sm">1</td>
                   <td className="py-2 text-sm">$0</td>
-                  <td className="py-2 text-sm text-right">0</td>
+                  <td className="py-2 text-sm text-right">$0</td>
                 </tr>
               )}
               {/* Need to add other line items here */}
+              {activeAddons?.customDomains !== undefined && (
+                <tr className="border-b">
+                  <td className="py-2 text-sm">Custom domain</td>
+                  <td className="py-2 text-sm">1</td>
+                  <td className="py-2 text-sm">${activeAddons.customDomains.unit_amount / 100}</td>
+                  <td className="py-2 text-sm text-right">
+                    ${activeAddons.customDomains.unit_amount / 100}
+                  </td>
+                </tr>
+              )}
               {/* Total */}
               <tr>
                 <td className="py-2 text-sm">Total</td>
