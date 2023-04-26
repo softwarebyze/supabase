@@ -22,7 +22,7 @@ const AddOns = ({}: AddOnsProps) => {
   )
   const computeSpecs =
     activeComputeAddOnMetadata?.metadata?.features ??
-    '2-core ARM (shared) • 1GB memory • 2,606Mbps Disk IO'
+    '2-core ARM (shared) • 1GB memory • 2,606 Mbps • 87 Mbps • 50'
   const [cpu, memory, maxIO, baseIO, connectionLimit] = computeSpecs.split('•').map((x) => x.trim())
 
   return (
