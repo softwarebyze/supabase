@@ -28,7 +28,7 @@ const AddOns = ({}: AddOnsProps) => {
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-5">
-        <p className="text-base">Cost control</p>
+        <p className="text-base">Add ons</p>
         <p className="text-sm text-scale-1000">Some description text here</p>
       </div>
       {isLoading ? (
