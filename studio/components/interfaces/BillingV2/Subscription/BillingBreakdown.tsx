@@ -12,6 +12,7 @@ import { BILLING_BREAKDOWN_METRICS } from './Subscription.constants'
 import clsx from 'clsx'
 import { formatBytes } from 'lib/helpers'
 import { getActiveAddOns } from './Subscription.utils'
+import BillingBreakdownRow from './BillingBreakdownRow'
 
 export interface BillingBreakdownProps {}
 
@@ -138,40 +139,29 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
             </thead>
             <tbody>
               {/* Tier */}
-              <tr className="border-b">
-                <td className="py-2 text-sm">{subscription?.tier.name}</td>
-                <td className="py-2 text-sm">1</td>
-                <td className="py-2 text-sm">${tierCost}</td>
-                <td className="py-2 text-sm text-right">${tierCost}</td>
-              </tr>
+              <BillingBreakdownRow name={subscription?.tier.name} cost={tierCost} />
               {/* Compute */}
               {activeAddons?.computeSize !== undefined ? (
-                <tr className="border-b">
-                  <td className="py-2 text-sm">{activeAddons.computeSize.name}</td>
-                  <td className="py-2 text-sm">1</td>
-                  <td className="py-2 text-sm">${activeAddons.computeSize.unit_amount / 100}</td>
-                  <td className="py-2 text-sm text-right">
-                    ${activeAddons.computeSize.unit_amount}
-                  </td>
-                </tr>
+                <BillingBreakdownRow
+                  name={activeAddons.computeSize.name}
+                  cost={activeAddons.computeSize.unit_amount / 100}
+                />
               ) : (
-                <tr className="border-b">
-                  <td className="py-2 text-sm">Micro compute</td>
-                  <td className="py-2 text-sm">1</td>
-                  <td className="py-2 text-sm">$0</td>
-                  <td className="py-2 text-sm text-right">$0</td>
-                </tr>
+                <BillingBreakdownRow name="Micro compute" cost={0} />
               )}
-              {/* Need to add other line items here */}
+              {/* PITR */}
+              {activeAddons?.pitrDuration !== undefined && (
+                <BillingBreakdownRow
+                  name="Point in time recovery"
+                  cost={activeAddons.pitrDuration.unit_amount / 100}
+                />
+              )}
+              {/* Custom domain */}
               {activeAddons?.customDomains !== undefined && (
-                <tr className="border-b">
-                  <td className="py-2 text-sm">Custom domain</td>
-                  <td className="py-2 text-sm">1</td>
-                  <td className="py-2 text-sm">${activeAddons.customDomains.unit_amount / 100}</td>
-                  <td className="py-2 text-sm text-right">
-                    ${activeAddons.customDomains.unit_amount / 100}
-                  </td>
-                </tr>
+                <BillingBreakdownRow
+                  name="Custom domain"
+                  cost={activeAddons.customDomains.unit_amount / 100}
+                />
               )}
               {/* Total */}
               <tr>
