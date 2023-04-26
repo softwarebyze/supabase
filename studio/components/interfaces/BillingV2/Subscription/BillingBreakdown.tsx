@@ -26,7 +26,8 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
   const billingCycleEnd = dayjs.unix(subscription?.billing?.current_period_end ?? 0).utc()
 
   // [Joshen] To be derived dynamically
-  const totalUpcomingCost = 0
+  const tierCost = (subscription?.tier.unit_amount ?? 0) / 100
+  const totalUpcomingCost = tierCost
 
   return (
     <div className="grid grid-cols-12">
@@ -87,7 +88,7 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
                   <div
                     key={metric.key}
                     className={clsx(
-                      'col-span-6 py-4 space-y-4',
+                      'col-span-6 py-4 space-y-4 border-scale-400',
                       i % 2 === 0 ? 'border-r pr-4' : 'pl-4',
                       i < BILLING_BREAKDOWN_METRICS.length - 2 && 'border-b'
                     )}
@@ -134,8 +135,8 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
               <tr className="border-b">
                 <td className="py-2 text-sm">{subscription?.tier.name}</td>
                 <td className="py-2 text-sm">1</td>
-                <td className="py-2 text-sm">${subscription?.tier.unit_amount ?? 0}</td>
-                <td className="py-2 text-sm text-right">${subscription?.tier.unit_amount ?? 0}</td>
+                <td className="py-2 text-sm">${tierCost}</td>
+                <td className="py-2 text-sm text-right">${tierCost}</td>
               </tr>
               {/* Compute */}
               {activeAddons?.computeSize !== undefined ? (
