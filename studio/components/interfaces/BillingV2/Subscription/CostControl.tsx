@@ -28,7 +28,7 @@ const CostControl = ({}: CostControlProps) => {
         </div>
       ) : (
         <div className="col-span-7 space-y-6">
-          <p className="text-sm">
+          <p className="text-sm text-scale-1000">
             You can control whether your project is charged for additional usage beyond the included
             usage of your subscription plan. If you need to go beyond the included usage, simply
             switch off your spend cap to pay for additional usage.
