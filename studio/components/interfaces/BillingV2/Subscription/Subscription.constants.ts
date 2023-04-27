@@ -1,3 +1,7 @@
+// [Joshen] Probably need to centralize this value somewhere as it needs to be used
+// by email notifications as well
+export const USAGE_APPROACHING_THRESHOLD = 0.8
+
 export const BILLING_BREAKDOWN_METRICS = [
   { key: 'db_size', name: 'Database space', units: 'bytes' },
   { key: 'db_egress', name: 'Database egress', units: 'bytes' },

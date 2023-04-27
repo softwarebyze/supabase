@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useParams } from 'common'
 import ShimmeringLoader from 'components/ui/ShimmeringLoader'
 import SparkBar from 'components/ui/SparkBar'
@@ -8,11 +9,12 @@ import {
   useProjectUsageQuery,
 } from 'data/usage/project-usage-query'
 import dayjs from 'dayjs'
-import { BILLING_BREAKDOWN_METRICS } from './Subscription.constants'
-import clsx from 'clsx'
 import { formatBytes } from 'lib/helpers'
-import { getActiveAddOns } from './Subscription.utils'
 import BillingBreakdownRow from './BillingBreakdownRow'
+import { BILLING_BREAKDOWN_METRICS } from './Subscription.constants'
+import { getActiveAddOns } from './Subscription.utils'
+import { USAGE_APPROACHING_THRESHOLD } from 'lib/constants'
+import { IconAlertTriangle } from 'ui'
 
 export interface BillingBreakdownProps {}
 
@@ -89,7 +91,8 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
                 const usageLabel = `${usageCurrentLabel} of ${usageLimitLabel}`
                 const percentageLabel = `${(usageRatio * 100).toFixed(2)}%`
 
-                if (!usageMeta.available_in_plan) return null
+                const isApproachingLimit = usageRatio >= USAGE_APPROACHING_THRESHOLD
+                const isExceededLimit = usageRatio >= 1
 
                 return (
                   <div
@@ -100,16 +103,47 @@ const BillingBreakdown = ({}: BillingBreakdownProps) => {
                       i < BILLING_BREAKDOWN_METRICS.length - 2 && 'border-b'
                     )}
                   >
-                    <p className="text-sm text-scale-1100">{metric.name}</p>
-                    <SparkBar
-                      type="horizontal"
-                      max={usageMeta.limit}
-                      value={0}
-                      barClass="bg-scale-1100"
-                      labelBottom={usageLabel}
-                      labelBottomClass="!text-scale-1000"
-                      labelTop={percentageLabel}
-                    />
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-scale-1100">{metric.name}</p>
+                      {isExceededLimit ? (
+                        <div className="flex items-center space-x-2 min-w-[115px]">
+                          <IconAlertTriangle size={14} strokeWidth={2} className="text-red-900" />
+                          <p className="text-sm text-red-900">Exceeded limit</p>
+                        </div>
+                      ) : isApproachingLimit ? (
+                        <div className="flex items-center space-x-2 min-w-[115px]">
+                          <IconAlertTriangle size={14} strokeWidth={2} className="text-amber-900" />
+                          <p className="text-sm text-amber-900">Reaching limit</p>
+                        </div>
+                      ) : null}
+                    </div>
+                    {usageMeta.available_in_plan ? (
+                      <SparkBar
+                        type="horizontal"
+                        max={usageMeta.limit}
+                        value={usageMeta.usage ?? 0}
+                        barClass={
+                          isExceededLimit
+                            ? 'bg-red-900'
+                            : isApproachingLimit
+                            ? 'bg-amber-900'
+                            : 'bg-scale-1100'
+                        }
+                        labelBottom={usageLabel}
+                        labelBottomClass="!text-scale-1000"
+                        labelTop={percentageLabel}
+                        labelTopClass={
+                          isExceededLimit
+                            ? '!text-red-900'
+                            : isApproachingLimit
+                            ? '!text-amber-900'
+                            : ''
+                        }
+                      />
+                    ) : (
+                      // [Joshen] Needs a better CTA here
+                      <p className="text-sm text-scale-1100">Unavailable in your plan</p>
+                    )}
                   </div>
                 )
               })}
