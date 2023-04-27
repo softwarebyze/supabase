@@ -35,7 +35,7 @@ const SubscriptionTier = ({}: SubscriptionTierProps) => {
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-5">
-        <p className="text-base">Subscription tier</p>
+        <p className="text-base sticky top-16">Subscription tier</p>
       </div>
       {isLoading ? (
         <div className="col-span-7 space-y-2">

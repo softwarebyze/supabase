@@ -17,8 +17,10 @@ const CostControl = ({}: CostControlProps) => {
   return (
     <div className="grid grid-cols-12">
       <div className="col-span-5">
-        <p className="text-base">Cost control</p>
-        <p className="text-sm text-scale-1000">Some description text here</p>
+        <div className="sticky top-16">
+          <p className="text-base">Cost control</p>
+          <p className="text-sm text-scale-1000">Some description text here</p>
+        </div>
       </div>
       {isLoading ? (
         <div className="col-span-7 space-y-2">
