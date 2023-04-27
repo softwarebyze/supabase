@@ -12,7 +12,7 @@ import { Subscription } from 'components/interfaces/Billing'
 import SubscriptionV2 from 'components/interfaces/BillingV2/Subscription/Subscription'
 
 const ProjectBilling: NextPageWithLayout = () => {
-  const showNewSubscriptionUI = useFlag('subscriptionUsageBillingv2')
+  const showNewSubscriptionUI = useFlag('subscriptionV2')
 
   if (showNewSubscriptionUI) {
     return <SubscriptionV2 />
