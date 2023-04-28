@@ -1,9 +1,9 @@
 import { Button, IconBookOpen, Space } from 'ui'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import SectionContainer from './Layouts/SectionContainer'
+import SectionContainer from '../Layouts/SectionContainer'
 
-const Hero = () => {
+const HeroOld = () => {
   const { basePath } = useRouter()
 
   return (
@@ -119,4 +119,4 @@ const Hero = () => {
   )
 }
 
-export default Hero
+export default HeroOld
