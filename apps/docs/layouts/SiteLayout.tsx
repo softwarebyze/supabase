@@ -326,9 +326,9 @@ const SiteLayout = ({ children }) => {
       </Head>
       <main>
         <div>
-          <Announcement>
+          {/* <Announcement>
             <AnnouncementCountdown />
-          </Announcement>
+          </Announcement> */}
         </div>
         <div className="flex flex-row h-screen">
           <NavContainer />
